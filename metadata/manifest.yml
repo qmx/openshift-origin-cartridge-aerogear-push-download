@@ -1,0 +1,118 @@
+Name: aerogear-push
+Cartridge-Short-Name: AEROGEAR_PUSH
+Display-Name: AeroGear Push Server 1.0.1 and WildFly
+Description: "Provides the AeroGear UnifiedPush Server, a server that allows sending push notifications to different mobile platforms, and the AeroGear SimplePush Server, an implementation of Mozilla's SimplePush Protocol. Runs on JBoss Application Server 7."
+Version: '1.0.1'
+License: "ASL 2.0"
+License-Url: http://www.apache.org/licenses/LICENSE-2.0.txt
+Vendor: AeroGear
+Cartridge-Version: '0.0.6'
+Cartridge-Vendor: aerogear
+Categories:
+  - service
+  - web_framework
+  - java
+  - wildfly
+  - java_ee_7
+Requires:
+  - mysql-5.5
+Website: http://www.aerogear.org
+Help-Topics:
+  "Developer Center": https://www.openshift.com/developers
+Cart-Data:
+  - Key: OPENSHIFT_AEROGEAR_PUSH_LOG_DIR
+    Type: environment
+    Description: "Directory to store application log files."
+  - Key: OPENSHIFT_TMP_DIR
+    Type: environment
+    Description: "Directory to store application temporary files."
+  - Key: OPENSHIFT_REPO_DIR
+    Type: environment
+    Description: "Application root directory where application files reside. This directory is reset every time you do a git-push"
+  - Key: OPENSHIFT_AEROGEAR_PUSH_HTTP_PORT
+    Type: environment
+    Description: "Internal port to which the web-framework binds to."
+  - Key: OPENSHIFT_AEROGEAR_PUSH_IP
+    Type: environment
+    Description: "Internal IP to which the web-framework binds to."
+  - Key: OPENSHIFT_APP_DNS
+    Type: environment
+    Description: "Fully qualified domain name for the application."
+  - Key: OPENSHIFT_APP_NAME
+    Type: environment
+    Description: "Application name"
+  - Key: OPENSHIFT_DATA_DIR
+    Type: environment
+    Description: "Directory to store application data files. Preserved across git-pushes. Not shared across gears."
+  - Key: OPENSHIFT_APP_UUID
+    Type: environment
+    Description: "Unique ID which identified the application. Does not change between gears."
+  - Key: OPENSHIFT_GEAR_UUID
+    Type: environment
+    Description: "Unique ID which identified the gear. This value changes between gears."
+Provides:
+  - wildfly-8
+  - "wildfly"
+  - wildfly-standalone
+Requires:
+  - mysql-5.5
+Publishes:
+  publish-http-url:
+    Type: "NET_TCP:httpd-proxy-info"
+  publish-wildfly-cluster:
+    Type: NET_TCP:wildfly-cluster-info
+Subscribes:
+  set-env:
+    Type: "ENV:*"
+    Required: false
+  set-mysql-connection-info:
+    Type: "NET_TCP:db:mysql"
+    Required : false
+  set-postgres-connection-info:
+    Type: "NET_TCP:db:postgres"
+    Required : false
+  set-doc-url:
+    Type: "STRING:urlpath"
+    Required : false
+  set-generic-java:
+    Type: "ENV:NET_TCP:generic-java"
+  set-wildfly-cluster:
+    Type: NET_TCP:wildfly-cluster-info
+Scaling:
+  Min: 1
+  Max: -1
+Endpoints:
+  - Private-IP-Name:     IP
+    Private-Port-Name:   HTTP_PORT
+    Private-Port:        8080
+    Public-Port-Name:    HTTP_PROXY_PORT
+    WebSocket-Port-Name: WEBSOCKET_PORT
+    WebSocket-Port:      8676
+    Protocols:
+    - http
+    - ws
+    Mappings:
+    - Frontend: ''
+      Backend: ''
+      Options:
+        websocket: true
+    - Frontend: /health
+      Backend: ''
+      Options:
+        health: true
+  - Private-IP-Name:   IP
+    Private-Port-Name: CLUSTER_PORT
+    Private-Port:      7600
+    Public-Port-Name:  CLUSTER_PROXY_PORT
+  - Private-IP-Name:   IP
+    Private-Port-Name: MESSAGING_PORT
+    Private-Port:      5445
+    Public-Port-Name:  MESSAGING_PROXY_PORT
+  - Private-IP-Name:   IP
+    Private-Port-Name: MESSAGING_THROUGHPUT_PORT
+    Private-Port:      5455
+  - Private-IP-Name: IP
+    Private-Port-Name: MANAGEMENT_HTTP_PORT
+    Private-Port: 9990	
+Additional-Control-Actions:
+    - threaddump
